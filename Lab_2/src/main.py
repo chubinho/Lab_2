@@ -1,6 +1,6 @@
 import logging
 
-from commands import get_ls
+from commands import get_cd, get_ls
 
 logging.basicConfig(
     level=logging.INFO,
@@ -17,6 +17,8 @@ try:
             continue
         command = current_str[0]
         ost = current_str[1:]
+        if command == "cd":
+            get_cd(ost)
         if command == "ls":
             get_ls(ost)
 
