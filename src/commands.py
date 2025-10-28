@@ -148,8 +148,8 @@ def get_cp(string):
 
     if len(tek_path) < 2:
         """Обрабатываем ввод меньше чем двух аргументов"""
-        logging.error("cp: missing destination file operand after source")
-        print("cp: missing destination file operand after source")
+        logging.error("cp: missing path2ination file operand after path1")
+        print("cp: missing path2ination file operand after path1")
         return
 
     path1 = tek_path[0]
@@ -182,3 +182,35 @@ def get_cp(string):
         # Ловим ошибку неправильного пути
         print(f"cp: cannot copy '{path1}' to '{path2}': {e.strerror}")
         logging.error(f"cp: cannot copy '{path1}' to '{path2}': {e}")
+
+
+def get_mv(string):
+    """Обрабатываем ввод пустого пути"""
+    if len(string) < 2:
+        logging.error("mv: missing file operand")
+        print("mv: missing file operand")
+        return
+
+    if len(string) > 2:
+        """Если введены 2 аргумента"""
+        logging.error("mv: extra operand after source and destination")
+        print("mv: extra operand after source and destination")
+        return
+    path1 = string[0]
+    path2 = string[1]
+    logging.info("mv " + " ".join(string))
+    try:
+        """Перемещаем файл или каталог"""
+        shutil.move(path1, path2)
+    except FileNotFoundError:
+        """Неверное имя файла/каталога"""
+        print(f"mv: cannot stat '{path1}': No such file or directory")
+        logging.error(f"mv: cannot stat '{path1}': No such file or directory")
+    except PermissionError:
+        """Отсутствие доступа"""
+        print("mv: permission denied")
+        logging.error("mv: permission denied")
+    except OSError as e:
+        """Ловим ошибку неправильного пути или других системных ошибок"""
+        print(f"mv: cannot move '{path1}' to '{path2}': {e.strerror}")
+        logging.error(f"mv: cannot move '{path1}' to '{path2}': {e}")
