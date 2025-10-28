@@ -1,6 +1,7 @@
 import logging
 import os
 import time
+from pathlib import Path
 
 
 def get_ls(string):
@@ -44,7 +45,9 @@ def get_ls(string):
                     print(" ".join(items))
                 else:
                     for item in items:
+                        """Создаем подробный вывод файла"""
                         tek_path = os.path.join(path, item)
+                        """ Проверяем, является ли путь директорией"""
                         type_ch = "d" if os.path.isdir(tek_path) else "-"
                         try:
                             size = (
@@ -52,41 +55,81 @@ def get_ls(string):
                                 if os.path.isfile(tek_path)
                                 else 0
                             )
+                            """Получаем время в таком формате, как нас просят"""
                             mtime = os.path.getmtime(tek_path)
                             time_f = time.ctime(mtime)
+
                         except OSError:
                             size = 0
                             time_f = "????-??-?? ??:??:??"
                         print(f"{type_ch} {size} {time_f} {item}")
     except PermissionError:
+        """Ловив ошибки оступа"""
         print("ERROR: Permission denied")
         logging.error("ERROR: Permission denied")
     except OSError as e:
+        """Ловим ошибку неправильного пути"""
         print(f"ERROR: {e}")
         logging.error(f"ERROR: Invalid path — {e}")
 
 
 def get_cd(string):
     try:
+        """Обрабатываем запрос cd"""
         logging.info("cd" + " ".join(string) if string else "cd")
         if len(string) == 0:
+            """Переходим в домашнюю директорию"""
             path = os.path.expanduser("~")
             os.chdir(path)
         else:
+            """Переходим на уровень выше"""
             if string[0] == "..":
                 os.chdir("..")
             elif string[0] == "~":
+                """Переходим в домашнюю директорию"""
                 path = os.path.expanduser("~")
                 os.chdir(path)
             else:
+                """Обрабатываем обычный путб"""
                 cur_path = string[0]
                 os.chdir(cur_path)
     except FileNotFoundError:
+        """Обрабатываем ошибку неверного имени файла"""
         logging.error("ERROR: No such file or directory")
         print("ERROR: No such file or directory")
     except NotADirectoryError:
+        """Не директория"""
         logging.error("ERROR: Not a directory")
         print("ERROR: Not a directory")
     except PermissionError:
+        """Нет доступа"""
         logging.error("ERROR: Permission denied")
         print("ERROR: Permission denied")
+
+
+def get_cat(string):
+    """Обрабатываем запрос cat"""
+    logging.info("cat" + " ".join(string))
+    if len(string) == 0:
+        """Если был подан пустой запрос"""
+        logging.error("cat: missing file operand")
+        print("cat: missing file operand")
+        return
+    for file in string:
+        try:
+            """Проходимся по файлам и пытаемся
+            вывести содержание каждого"""
+            text = Path(file).read_text()
+            print(text, end="")
+        except FileNotFoundError:
+            """Неверное имя файла"""
+            print(f"cat: {file}: No such file or directory")
+            logging.error(f"cat: {file}: No such file or directory")
+        except IsADirectoryError:
+            """Ошибка директории(должен быть файл)"""
+            print(f"cat: {file}: Is a directory")
+            logging.error(f"cat: {file}: Is a directory")
+        except PermissionError:
+            """Отсутствие доступа"""
+            print(f"cat: {file}: Permission denied")
+            logging.error(f"cat: {file}: Permission denied")
