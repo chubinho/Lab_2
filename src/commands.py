@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import time
 from pathlib import Path
 
@@ -133,3 +134,51 @@ def get_cat(string):
             """Отсутствие доступа"""
             print(f"cat: {file}: Permission denied")
             logging.error(f"cat: {file}: Permission denied")
+
+
+def get_cp(string):
+    if len(string) == 0:
+        """Обрабатываем ввод пустого пути"""
+        logging.error("cp: missing file operand")
+        print("cp: missing file operand")
+        return
+
+    tek_path = [x for x in string if x != "-r"]
+    """Получаем путь"""
+
+    if len(tek_path) < 2:
+        """Обрабатываем ввод меньше чем двух аргументов"""
+        logging.error("cp: missing destination file operand after source")
+        print("cp: missing destination file operand after source")
+        return
+
+    path1 = tek_path[0]
+    path2 = tek_path[1]
+    logging.info("cp " + " ".join(string))
+    try:
+        """Проверяем указатель -r"""
+        if "-r" in string:
+            shutil.copytree(path1, path2)
+            return
+        else:
+            """Работаем с обычным копированием"""
+            if os.path.isdir(path1):
+                logging.error(f"cp: -r not specified, omitting directory '{path1}'")
+                print(f"cp: -r not specified, omitting directory '{path1}'")
+                return
+            if os.path.isdir(path2):
+                path2 = os.path.join(path2, os.path.basename(path1))
+            shutil.copy2(path1, path2)
+            return
+    except FileNotFoundError:
+        # Ошибка неправильного воода имени файла
+        print(f"cp: cannot stat '{path1}': No such file or directory")
+        logging.error(f"cp: cannot stat '{path1}': No such file or directory")
+    except PermissionError:
+        # Ошибка доступа
+        print("cp: permission denied")
+        logging.error("cp: permission denied")
+    except OSError as e:
+        # Ловим ошибку неправильного пути
+        print(f"cp: cannot copy '{path1}' to '{path2}': {e.strerror}")
+        logging.error(f"cp: cannot copy '{path1}' to '{path2}': {e}")

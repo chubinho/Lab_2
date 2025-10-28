@@ -21,6 +21,8 @@ try:
             get_cd(ost)
         if command == "ls":
             get_ls(ost)
+        if command == "cat":
+            get_ls(ost)
 
         elif user_input == "exit":
             break
