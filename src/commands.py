@@ -49,7 +49,7 @@ def get_ls(string):
                         """Создаем подробный вывод файла"""
                         tek_path = os.path.join(path, item)
                         """ Проверяем, является ли путь директорией"""
-                        type_ch = "d" if os.path.isdir(tek_path) else "-"
+                        type_ch = "D" if os.path.isdir(tek_path) else "F"
                         try:
                             size = (
                                 os.path.getsize(tek_path)
@@ -144,7 +144,6 @@ def get_cp(string):
         return
 
     tek_path = [x for x in string if x != "-r"]
-    """Получаем путь"""
 
     if len(tek_path) < 2:
         """Обрабатываем ввод меньше чем двух аргументов"""
@@ -214,3 +213,65 @@ def get_mv(string):
         """Ловим ошибку неправильного пути или других системных ошибок"""
         print(f"mv: cannot move '{path1}' to '{path2}': {e.strerror}")
         logging.error(f"mv: cannot move '{path1}' to '{path2}': {e}")
+
+
+def get_rm(string):
+    if len(string) == 0:
+        """Обрабатываем ввод пустого пути"""
+        print("rm: missing file operand")
+        logging.error("rm: missing file operand")
+        return
+
+    path = [x for x in string if x != "-r"]
+    # Находим путь без rm
+
+    if len(path) == 0:
+        """Если не был передан путь файла/директории"""
+        print("rm: missing file operand")
+        logging.error("rm: missing file operand")
+        return
+
+    logging.info("rm " + " ".join(string))
+
+    path1 = path[0]  # Определяем путь
+    path2 = os.path.abspath(path1)
+    if path2 == os.path.abspath("..") or path2 == "/":
+        """Предотвращаем удаление корневого и родительского каталога"""
+        print(f"rm: cannot remove '{path1}': Operation not permitted")
+        logging.error(f"rm: cannot remove '{path1}': Operation not permitted")
+        return
+    else:
+        """Рассматриваем ввод правильных путей"""
+        try:
+            if os.path.isfile(path1):
+                """Удаляем файл"""
+                os.remove(path1)
+            elif os.path.isdir(path1):
+                """Проверяем, является ли директорией"""
+                if "-r" in string:
+                    """Спрашиваем перед удалением"""
+                    choice = input(f"rm: remove directory '{path1}'? (y/n) ").strip()
+                    if choice == "y":
+                        """Если принимается удаление,
+                        то рекурсивно удаляем всё в директории"""
+                        shutil.rmtree(path1)
+                    else:
+                        print("rm: cancelled")
+                        logging.info(f"rm: cancelled for '{path1}'")
+                else:
+                    """Если нет -r"""
+                    print(f"rm: cannot remove '{path1}': Is a directory")
+                    logging.error(f"rm: cannot remove '{path1}': Is a directory")
+            else:
+                """Неизвестный файл"""
+                print(f"rm: cannot remove '{path1}': No such file or directory")
+                logging.error(f"rm: cannot remove '{path1}': No such file or directory")
+
+        except PermissionError:
+            """Ошибка доступа"""
+            print(f"rm: cannot remove '{path1}': Permission denied")
+            logging.error(f"rm: cannot remove '{path1}': Permission denied")
+        except OSError as e:
+            """Ошибка системы"""
+            print(f"rm: cannot remove '{path1}': {e.strerror}")
+            logging.error(f"rm: cannot remove '{path1}': {e}")
