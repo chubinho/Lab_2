@@ -21,4 +21,4 @@ def log1(command, string):
 
 # Добавляем в shell.log ошибку
 def log2(command, message):
-    logger.error(f"{command}: {message}")
+    logger.error(f"ERROR: {message}")
