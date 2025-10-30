@@ -1,19 +1,27 @@
-import logging
+import os
 
+from archive import ArchiveCommands
 from commands import get_cat, get_cd, get_cp, get_ls, get_mv, get_rm
-
-logging.basicConfig(
-    level=logging.INFO,
-    filename="shell.log",
-    format="[%(asctime)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
 
 
 def main():
+    # создаём объект архивных команд
+    archive = ArchiveCommands()
+
     try:
         while True:
-            user_input = input("$ ")
+            current_dir = os.getcwd()
+            if not current_dir.startswith(os.path.expanduser("~")):
+                vivod = current_dir
+            else:
+                home_dir = os.path.expanduser("~")
+                if current_dir.startswith(home_dir):
+                    vivod = current_dir.replace(
+                        home_dir, "~", 1
+                    )  # заменить только первое вхождение
+                else:
+                    vivod = current_dir
+            user_input = input(f"{vivod} $ ")
             if user_input == "exit":
                 break
             current_str = user_input.split()
@@ -21,7 +29,6 @@ def main():
                 continue
             command = current_str[0]
             ost = current_str[1:]
-
             if command == "cd":
                 get_cd(ost)
             elif command == "ls":
@@ -34,7 +41,16 @@ def main():
                 get_cp(ost)
             elif command == "rm":
                 get_rm(ost)
-
+            elif command == "grep":
+                archive.grep(ost)
+            elif command == "zip":
+                archive.zip(ost)
+            elif command == "unzip":
+                archive.unzip(ost)
+            elif command == "tar":
+                archive.tar(ost)
+            elif command == "untar":
+                archive.untar(ost)
             else:
                 print(f"{command}: command not found")
 
