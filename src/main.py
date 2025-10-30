@@ -12,44 +12,59 @@ def main():
         while True:
             current_dir = os.getcwd()
             if not current_dir.startswith(os.path.expanduser("~")):
+                """Если текущая дериктория не совпадает с домашней"""
                 vivod = current_dir
             else:
+                """Получаем домашнюю директорию и проверяем
+                не совпадает ли с домашней директорией
+                наш путь"""
                 home_dir = os.path.expanduser("~")
                 if current_dir.startswith(home_dir):
-                    vivod = current_dir.replace(
-                        home_dir, "~", 1
-                    )  # заменить только первое вхождение
+                    vivod = current_dir.replace(home_dir, "~", 1)
                 else:
                     vivod = current_dir
             user_input = input(f"{vivod} $ ")
             if user_input == "exit":
+                """Ввод exit для выхода"""
                 break
             current_str = user_input.split()
             if not current_str:
+                """Обрабатываем пустой ввод"""
                 continue
             command = current_str[0]
             ost = current_str[1:]
             if command == "cd":
+                """Ввод cd"""
                 get_cd(ost)
             elif command == "ls":
+                """Ввод ls"""
                 get_ls(ost)
             elif command == "cat":
+                """Ввод cat"""
                 get_cat(ost)
             elif command == "mv":
+                """Ввод mv"""
                 get_mv(ost)
             elif command == "cp":
+                """Ввод cp"""
                 get_cp(ost)
             elif command == "rm":
+                """Ввод rm"""
                 get_rm(ost)
             elif command == "grep":
+                """Ввод grep"""
                 archive.grep(ost)
             elif command == "zip":
+                """Ввод zip"""
                 archive.zip(ost)
             elif command == "unzip":
+                """Ввод unzip"""
                 archive.unzip(ost)
             elif command == "tar":
+                """Ввод tar"""
                 archive.tar(ost)
             elif command == "untar":
+                """Ввод untar"""
                 archive.untar(ost)
             else:
                 print(f"{command}: command not found")
