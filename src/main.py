@@ -1,7 +1,12 @@
 import os
 
-from archive import ArchiveCommands
-from commands import get_cat, get_cd, get_cp, get_ls, get_mv, get_rm
+from src.commands.archive import ArchiveCommands
+from src.commands.cat import get_cat
+from src.commands.cd import get_cd
+from src.commands.cp import get_cp
+from src.commands.ls import get_ls
+from src.commands.mv import get_mv
+from src.commands.rm import get_rm
 
 
 def main():
